@@ -17,13 +17,13 @@ known_models = [
 
 def mnist(cuda=True, model_root=None):
     print("Building and initializing mnist parameters")
-    from mnist import model, dataset
+    from mnist import model
     m = model.mnist(pretrained=os.path.join(model_root, 'mnist.pth'))
 
     #commented because I don't have cuda
     # if cuda:
     #     m = m.cuda()
-    return m, dataset.get, False
+    return m, False, False
 
 def svhn(cuda=True, model_root=None):
     print("Building and initializing svhn parameters")
@@ -36,12 +36,12 @@ def svhn(cuda=True, model_root=None):
 
 def cifar10(cuda=True, model_root=None):
     print("Building and initializing cifar10 parameters")
-    from cifar import model, dataset
+    from cifar import model
     m = model.cifar10(128, pretrained=os.path.join(model_root, 'cifar10.pth'))
     #commented because I don't have cuda
     # if cuda:
     #     m = m.cuda()
-    return m, dataset.get10, False
+    return m, False, False
 
 def cifar100(cuda=True, model_root=None):
     print("Building and initializing cifar100 parameters")

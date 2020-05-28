@@ -4,8 +4,8 @@ from IPython import embed
 from collections import OrderedDict
 import torch
 
-from utee import misc
-print = misc.logger.info
+# from utee import misc
+# print = misc.logger.info
 
 model_urls = {
     'cifar10': 'http://ml.cs.tsinghua.edu.cn/~chenxi/pytorch-models/cifar10-d875770b.pth',

@@ -1,8 +1,8 @@
 import torch.nn as nn
 from collections import OrderedDict
 import torch.utils.model_zoo as model_zoo
-from utee import misc
-print = misc.logger.info
+# from utee import misc
+# print = misc.logger.info
 import torch
 
 model_urls = {
