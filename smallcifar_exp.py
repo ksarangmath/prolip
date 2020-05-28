@@ -3,10 +3,9 @@ sys.path.insert(0, "./pretrained_classifiers")
 sys.path.insert(0, "./")
 import os
 import torch
-import torchvision
+
 import torch.nn as nn
-from torchvision import transforms
-from torchvision.utils import save_image
+
 from torch.autograd import Variable
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
@@ -27,7 +26,7 @@ import csv
 num_gpu = 1 if torch.cuda.is_available() else 0
 
 # load the models
-from dcgan_cifar import Discriminator, Generator
+from dcgan_cifar import Generator
 
 G = Generator(ngpu=1).eval()
 
