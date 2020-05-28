@@ -3,10 +3,10 @@ sys.path.insert(0, "./pretrained_classifiers")
 sys.path.insert(0, "./")
 import os
 import torch
-import torchvision
+# import torchvision
 import torch.nn as nn
-from torchvision import transforms
-from torchvision.utils import save_image
+# from torchvision import transforms
+# from torchvision.utils import save_image
 from torch.autograd import Variable
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
