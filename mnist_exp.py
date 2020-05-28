@@ -27,7 +27,7 @@ import csv
 num_gpu = 1 if torch.cuda.is_available() else 0
 
 # load the models
-from dcgan_mnist import Discriminator, Generator
+from dcgan_mnist import Generator
 
 G = Generator(ngpu=1).eval()
 
