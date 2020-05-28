@@ -2,7 +2,7 @@
 import os
 # from imagenet import dataset
 # print = misc.logger.info
-from IPython import embed
+# from IPython import embed
 
 known_models = [
     'mnist', 'svhn', # 28x28
