@@ -1,7 +1,7 @@
-from utee import misc
+# from utee import misc
 import os
 # from imagenet import dataset
-print = misc.logger.info
+# print = misc.logger.info
 from IPython import embed
 
 known_models = [
