@@ -27,12 +27,12 @@ import csv
 num_gpu = 1 if torch.cuda.is_available() else 0
 
 # load the models
-from dcgan import Discriminator, Generator
+from dcgan_cifar import Discriminator, Generator
 
 G = Generator(ngpu=1).eval()
 
 # load weights
-G.load_state_dict(torch.load('weights/netG_epoch_199.pth',map_location=torch.device('cpu')))
+G.load_state_dict(torch.load('weights_cifar/netG_epoch_199.pth',map_location=torch.device('cpu')))
 if torch.cuda.is_available():
     G = G.cuda()
 
