@@ -1,6 +1,9 @@
 import sys
 sys.path.insert(0, "./pretrained_classifiers")
 sys.path.insert(0, "./")
+sys.path.insert(0, "./mnist")
+sys.path.insert(0, "./small_cifar")
+sys.path.insert(0, "./large_cifar")
 import os
 import torch
 import numpy as np
@@ -50,7 +53,7 @@ def main(argv):
 				lipc = clf.clf(a_o,C)
 				totaltime=time.perf_counter()-tottic
 
-				print(totaltime, 'total time', 'lipc:', lipc)
+				print('total time:', totaltime, 'lipc:', lipc)
 				print('ROUND DONE')
 				writer.writerow({'center':center,'size':size,'lip-constant':lipc,'time':totaltime})
 
