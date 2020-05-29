@@ -96,7 +96,7 @@ def main(argv):
 
 	ax.set_xticks(ind+width)
 	ax.set_xticklabels( x )
-	ax.legend( [h[0] for h in handles], boxSizes ,title='Box Sizes')
+	ax.legend( [h[0] for h in handles], boxSizes ,title='Box Sizes', loc='lower right')
 
 	plt.title('PROLIP Runtime on ' + filename)
 	plt.ylabel('Runtime (seconds)')
