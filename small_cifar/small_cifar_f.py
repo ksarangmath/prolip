@@ -43,19 +43,49 @@ def clf(a_o,C):
 	#For each layer in your model, call the corresponding function from boxprop_optimized
 	#C is the classifier model, use its state_dict to get trained model parameters like shown
 	b.conv2d(weight=C.state_dict()['conv1.weight'],c_out=6,kernel_size=5,stride=1,bias=C.state_dict()['conv1.bias'])
+	print(b.getLip(), '1st conv')
 	b.relu()
+	print(b.getLip(), '1st relu')
 	b.maxpool2d(2)
+	print(b.getLip(), '1st maxpool')
 	b.conv2d(weight=C.state_dict()['conv2.weight'],c_out=16,kernel_size=5,stride=1,bias=C.state_dict()['conv2.bias'])
+	print(b.getLip(), '2nd conv')
 	b.relu()
+	print(b.getLip(), '2nd relu')
 	b.maxpool2d(2)
+	print(b.getLip(), '2nd maxpool')
 	b.linear(weight=C.state_dict()['fc1.weight'],bias=C.state_dict()['fc1.bias'])
+	print(b.getLip(), '1st fc')
 	b.relu()
+	print(b.getLip(), '3rd relu')
 	b.linear(weight=C.state_dict()['fc2.weight'],bias=C.state_dict()['fc2.bias'])
+	print(b.getLip(), '2nd fc')
 	b.relu()
+	print(b.getLip(), '4th relu')
 	b.linear(weight=C.state_dict()['fc3.weight'],bias=C.state_dict()['fc3.bias'])
+	print(b.getLip(), '3rd fc')
 
 	print('classifier propagation done')
-	return b.getLip()
+	return b.getLip(), b.getJac()
+
+def main():
+	batch_size = 1
+	torch_model = loadClf()
+	x = torch.randn(batch_size, 3, 32, 32, requires_grad=True)
+	torch_out = torch_model(x)
+
+	# Export the model
+	torch.onnx.export(torch_model,               # model being run
+                  x,                         # model input (or a tuple for multiple inputs)
+                  "small_cifar.onnx",   # where to save the model (can be a file or file-like object)
+                  export_params=True,        # store the trained parameter weights inside the model file
+                  input_names = ['input'],   # the model's input names
+                  output_names = ['output'], # the model's output names
+                  dynamic_axes={'input' : {0 : 'batch_size'},    # variable lenght axes
+                                'output' : {0 : 'batch_size'}})
+
+if __name__ == "__main__":
+    main()
 
 
 

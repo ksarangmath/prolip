@@ -87,7 +87,8 @@ class Lip():
 		self.upper = newUpper
 		self.lower = newLower
 
-		
+		print(self.upper.shape)
+
 		return newLower
 
 	def batchNorm2d(self, var, weights, eps):
@@ -156,6 +157,8 @@ class Lip():
 				self.upper[i][:] = 0
 				self.lower[i][:] = 0
 
+	def jacobian(self):
+		return np.where(-self.lower > self.upper, self.lower, self.upper)
 
 	def operatorNorm(self):
 		maxabs = np.where(-self.lower > self.upper, self.lower, self.upper)

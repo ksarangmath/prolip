@@ -181,6 +181,9 @@ class Box_o():
 	def getLip(self):
 		return self.lip.operatorNorm()
 
+	def getJac(self):
+		return self.lip.jacobian()
+
 
 
 
