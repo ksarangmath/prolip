@@ -2,19 +2,15 @@ import numpy as np
 import itertools
 import torch
 from numba import jit
-import warnings
-import cProfile
 import math
 from scipy import sparse
 from numba import prange
-# warnings.filterwarnings("ignore")
-
 
 class Lip():
 
 
 	#lip analysis only handles 1 batch currently
-	def __init__(self, lowerShape, upperShape):
+	def __init__(self, upperShape, lowerShape):
 		self.lower = np.identity(np.product(lowerShape), dtype=np.float32)
 		self.upper = np.identity(np.product(upperShape), dtype=np.float32)
 		self.sparse = True
@@ -87,7 +83,8 @@ class Lip():
 		self.upper = newUpper
 		self.lower = newLower
 
-		
+		# print(self.upper.shape)
+
 		return newLower
 
 	def batchNorm2d(self, var, weights, eps):
@@ -156,6 +153,8 @@ class Lip():
 				self.upper[i][:] = 0
 				self.lower[i][:] = 0
 
+	def jacobian(self):
+		return np.where(-self.lower > self.upper, self.lower, self.upper)
 
 	def operatorNorm(self):
 		maxabs = np.where(-self.lower > self.upper, self.lower, self.upper)

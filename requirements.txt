@@ -1,0 +1,7 @@
+scipy
+numba
+torch
+numpy
+skimage
+onnx
+matplotlib
