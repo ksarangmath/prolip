@@ -1,40 +1,60 @@
-import sys
-sys.path.insert(0, "./pretrained_classifiers")
-sys.path.insert(0, "./")
-sys.path.insert(0, "./mnist")
-sys.path.insert(0, "./small_cifar")
-sys.path.insert(0, "./large_cifar")
 import os
 import torch
 import numpy as np
-import io
 import time
-import itertools
 import csv
 import matplotlib as mpl 
-import datetime
 from matplotlib import rc
 import matplotlib.pyplot as plt
-import importlib
+import argparse
+import onnx
+from onnx import numpy_helper
+from boxprop import Box
+from onnx_to_boxprop import boxprop
+
+def isnetworkfile(fname):
+    _, ext = os.path.splitext(fname)
+    if ext not in ['.onnx']:
+        raise argparse.ArgumentTypeError('only .onnx format supported')
+    return fname
+
+def gen(upper_bound, lower_bound, G):
+	gen_box = Box(upper_bound,lower_bound, False)
+	boxprop(gen_box, G)
+	print("generator propagation done")
+	return gen_box
+
+def clf(gen_box, C):
+	clf_box = Box(gen_box.upper, gen_box.lower, True)
+	boxprop(clf_box, C)
+	print('classifier propagation done')
+	return clf_box
 
 
+def main():
+	parser = argparse.ArgumentParser(description='Arguments for PROLIP experiments', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+	parser.add_argument('--genname', type=isnetworkfile, default=None, help='the generator network name, must be an onnx network with .onnx extension')
+	parser.add_argument('--clfname', type=isnetworkfile, default=None, help='the classifier network name, must be an onnx network with .onnx extension')
+	parser.add_argument('--boxsizes', type=int, default=[0.00001,0.001,0.1], nargs='+', help='list of box sizes')
+	parser.add_argument('--numcenters', type=int, default=1, help='number of random centers')
+	parser.add_argument('--randomseed', type=int, default=0, help='torch random seed for picking random box centers')
+	parser.add_argument('--outfile', type=str, default='out', help='name for output files')
+	args = parser.parse_args()
 
-def main(argv):
-	gen = importlib.import_module(argv[0].split(".")[0])
-	latent_size = int(argv[1])
-	clf = importlib.import_module(argv[2].split(".")[0])
-	numSizes = int(argv[3])
-	boxSizes = [float(i) for i in argv[4:-3]]
-	numCenters = int(argv[-3])
-	randomSeed = int(argv[-2])
-	filename = argv[-1].split(".")[0]
+	assert args.genname, 'a generator network has to be provided for analysis.'
+	assert args.clfname, 'a classifier network has to be provided for analysis.'
 
 	rc('font', **{'serif': ['Computer Modern']})
-	# rc('text', usetex=True)
 	mpl.rcParams.update({'font.size': 14})
 
-	G = gen.loadGen()
-	C = clf.loadClf()
+	G = onnx.load(args.genname)
+	C = onnx.load(args.clfname)	    
+
+	latent_size = numpy_helper.to_array(G.graph.initializer[0]).shape[0]
+	boxSizes = args.boxsizes
+	numCenters = args.numcenters
+	randomSeed = args.randomseed
+	filename = args.outfile
 
 	torch.manual_seed(randomSeed)
 
@@ -49,15 +69,13 @@ def main(argv):
 				lower_bound = center-size
 
 				tottic = time.perf_counter()
-				a_o = gen.gen(upper_bound,lower_bound,G)
-				lipc = clf.clf(a_o,C)
+				a_o = gen(upper_bound,lower_bound,G)
+				lipc = clf(a_o, C).getLip()
 				totaltime=time.perf_counter()-tottic
 
 				print('total time:', totaltime, 'lipc:', lipc)
 				print('ROUND DONE')
 				writer.writerow({'center':center,'size':size,'lip-constant':lipc,'time':totaltime})
-
-
 
 	sizeTime = {}
 
@@ -79,16 +97,11 @@ def main(argv):
 		print(f'Processed {line_count} lines.')
 
 	x = [x+1 for x in range(numCenters)]
-
-
-
 	N = len(x)
 	ind = np.arange(N)  
 	width = 0.24    # adjust this width if bars are too wide or narrow
-
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
-
 	handles = []
 
 	keys = list(sizeTime.keys())
@@ -104,12 +117,11 @@ def main(argv):
 	plt.title('PROLIP Runtime on ' + filename)
 	plt.ylabel('Runtime (seconds)')
 	plt.xlabel('Random Centers')
-
 	plt.savefig(filename+'.png', bbox_inches='tight')
     
 
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    main()
 	
 
 

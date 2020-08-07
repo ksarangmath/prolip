@@ -1,12 +1,11 @@
 import numpy as np
 import onnx
 from onnx import numpy_helper
-from onnx_translator import *
-from boxprop_optimized import *
+from boxprop import *
 
 
-def boxprop():
-  model = onnx.load('small_cifar.onnx')
+
+def boxprop(box, model):
 
   resources = {}
 
@@ -14,87 +13,125 @@ def boxprop():
     const = numpy_helper.to_array(initial)
     resources[initial.name] = const
 
+  ignoredNodes = {'Constant', 'Reshape', 'Concat', 'Unsqueeze', 'Shape', 'Gather'}
 
   for node in model.graph.node:
-    if node.op_type == 'Relu':
-      print('b.relu()')
 
-    if node.op_type == 'Conv':
+    if node.op_type == 'Relu':
+      # print('box.relu()')
+      box.relu()
+
+
+    elif node.op_type == 'Tanh':
+      # print('box.tanh()')
+      box.tanh()
+
+
+    elif node.op_type == 'Conv':
       weight = None
       bias = None
-
       for inp in node.input:
         if inp.split('.')[-1] == 'weight':
           weight = resources[inp]
-          # print(resources[inp])
         if inp.split('.')[-1] == 'bias':
           bias = resources[inp]
-      c_out = weight.shape[0]
 
+      c_out = weight.shape[0]
+      kernel_size = 1
+      stride = 1
+      padding = 0
+
+      for attr in node.attribute:
+        if attr.name == 'kernel_shape':
+          kernel_size = attr.ints[0]
+        elif attr.name == 'strides':
+          stride = attr.ints[0]
+        elif attr.name == 'pads':
+          padding = attr.ints[0]
+      # print('box.conv2d','weight',c_out,kernel_size[0],stride, padding,'bias')
+      box.conv2d(weight,c_out,kernel_size,stride,padding,bias)
+
+
+    elif node.op_type == 'ConvTranspose':
+      weight = None
+      for inp in node.input:
+        if inp.split('.')[-1] == 'weight':
+          weight = resources[inp]
+
+      c_out = weight.shape[1]
       kernel_size = [0,0]
       stride = 1
+      padding = 0
+
       for attr in node.attribute:
         if attr.name == 'kernel_shape':
           for i,ints in enumerate(attr.ints):
             kernel_size[i] = ints
-        if attr.name == 'strides':
+        elif attr.name == 'strides':
           stride = attr.ints[0]
-      print('b.conv2d(weight,c_out,kernel_size,stride,bias)')
+        elif attr.name == 'pads':
+          padding = attr.ints[0]
+      # print('box.convTranspose2d','weight', c_out, kernel_size, stride, padding)
+      box.convTranspose2d(weight, c_out, kernel_size, stride, padding)
 
-    if node.op_type == 'MaxPool':
+
+    elif node.op_type == 'BatchNormalization':
+      mean = None
+      var = None
+      weight = None
+      bias = None
+      for inp in node.input:
+        if inp.split('.')[-1] == 'weight':
+          weight = resources[inp]
+        elif inp.split('.')[-1] == 'bias':
+          bias = resources[inp]
+        elif inp.split('.')[-1] == 'running_mean':
+          mean = resources[inp]
+        elif inp.split('.')[-1] == 'running_var':
+          var = resources[inp]
+
+      eps = 0
+      for attr in node.attribute:
+        if attr.name == 'epsilon':
+          eps = attr.f
+      # print('box.batchNorm2d','mean', 'var', eps, weight, bias)
+      box.batchNorm2d(mean, var, eps, weight, bias)
+
+
+    elif node.op_type == 'MaxPool':
       kernel_size = 1
       for attr in node.attribute:
         if attr.name == 'kernel_shape':
           kernel_size = attr.ints[0]
-      print('b.maxpool2d(kernel_size)')
+      # print('box.maxpool2d',kernel_size)
+      box.maxpool2d(kernel_size)
 
-    if node.op_type == 'Gemm':
+
+    elif node.op_type == 'Gemm':
       weight = None
       bias = None
 
       for inp in node.input:
         if inp.split('.')[-1] == 'weight':
           weight = resources[inp]
-          # print(resources[inp])
         if inp.split('.')[-1] == 'bias':
           bias = resources[inp]
-
-      print('b.fc(weight,bias)')
-
-
+      # print('box.linear','weight','bias')
+      box.linear(weight,bias)
 
 
-  # print(resources)
-
-    # if node.op_type == 'MaxPool':
-
-
-    # if node.op_type == 'Gemm':
-
-  # for init in model.graph.initializer:
-  #   print(init)
-
-  # for init in model.graph.node:
-  #   print(init)
+    elif node.op_type not in ignoredNodes:
+      raise ValueError('Cannot handle layer of type ' + node.op_type)
 
 
+   
 
+# def main():
 
+  # for node in model.graph.node:
+  #   print(node)
 
-    
+#   boxprop(None, 'cifar_g.onnx')	
 
-def main():
-
-  # translator = ONNXTranslator(model)
-
-  # operation_types, operation_resources = translator.translate()
-
-  # print(operation_types, operation_resources)
-
-  boxprop()
-
-  # print(len(onnx_model.graph.node),len(onnx_model.graph.initializer))
-	
-
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
