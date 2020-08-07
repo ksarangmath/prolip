@@ -37,7 +37,7 @@ python3 experiment.py --genname <path name to generator network> --clfname <path
 * ```<outfile>```: name of output .png and .csv files (default is out)
 
 
-**Note that the networks provided must be on ONNX file.**
+**Note that the networks provided must be ONNX files.**
 To convert a PyTorch model to ONNX, see https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html.
 To convert a TensorFlow model to ONNX, see https://github.com/onnx/tensorflow-onnx.
 
