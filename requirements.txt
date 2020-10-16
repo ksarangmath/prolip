@@ -1,7 +1,7 @@
 scipy
 numba
-torch
+pytorch
 numpy
-skimage
+scikit-image
 onnx
 matplotlib

@@ -6,8 +6,8 @@ Installation
 ------------
 Clone the repository via git as follows:
 ```
-git clone https://github.com/ksarangmath/artifact.git
-cd artifact
+git clone https://github.com/ksarangmath/prolip.git
+cd prolip
 ```
 
 Run the following command to install the dependencies:
