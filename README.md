@@ -62,7 +62,7 @@ python3 experiment.py --genname ./pretrained_generators/cifar/cifar_g.onnx --clf
 
 File Directory
 -------------
-* ```experiment.py``` is used to interact with our tool. It runs all the experiments, more details are in "instructions.pdf".
+* ```experiment.py``` is used to interact with our tool. It runs all the experiments, more details are in "artifact_instructions.pdf".
 
 * ```boxprop.py``` contains the code for the ```PROLIP``` box analysis instructions.
 
