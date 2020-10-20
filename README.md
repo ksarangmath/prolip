@@ -66,7 +66,7 @@ File Directory
 
 * ```boxprop.py``` contains the code for the ```PROLIP``` box analysis instructions.
 
-* ```lipprop.py``` is a helper class that is called by "boxprop.py", and it contains code for the PROLIP Lipschitz analysis instructions.
+* ```lipprop.py``` is a helper class that is called by "boxprop.py", and it contains code for the ```PROLIP``` Lipschitz analysis instructions.
 
 * ```onnx_to_boxprop.py``` contains a helper function that propagates a Box object (defined in ```boxprop.py```) through a given ONNX model.
 
